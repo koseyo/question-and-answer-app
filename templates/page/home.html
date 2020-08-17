@@ -5,9 +5,13 @@ please use this !
 {% endblock head_title %}
 
 {% block content %}
-Welcome to Tweeter
+<div class="row text-center">
+    <div class="col">
+        <h1>Welcome to Tweeter</h1>
+    </div>
+</div>
 
-<div id="tweet">
+<div class="row" id="tweet">
     Now Loading...
 </div>
 
@@ -35,7 +39,7 @@ function likeBtn(tweet) {
 }
 
 function formatTweetElement(tweet) {
-    let formattedTweet = "<div class='bp-4 tweet' id='tweet-" + tweet.id + "'><p>" + tweet.content + "</p><div class='btn-group'>" + likeBtn(tweet) + "</div></div>"
+    let formattedTweet = "<div class='col-12 border-top border-bottom py-3 mb-4 tweet' id='tweet-" + tweet.id + "'><p>" + tweet.content + "</p><div class='btn-group'>" + likeBtn(tweet) + "</div></div>"
     return formattedTweet
 }
 xhr.responseType = responseType
