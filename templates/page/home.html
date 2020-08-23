@@ -16,7 +16,7 @@ please use this !
         <form class="form" id="tweet-create-form" method='POST' action='/create-tweet'>
             {% csrf_token %}
             <input type="hidden" value="/" name="next" />
-            <textarea class="form-control" name="content" placeholder="ツイート内容を入力してください"></textarea>
+            <textarea class="form-control" name="content" required="required" placeholder="ツイート内容を入力してください"></textarea>
             <button type="submit" class="btn btn-primary">投稿する</button>
         </form>    
     </div>
@@ -34,19 +34,33 @@ function handleTweetCreateFormDidSubmit(event) {
     const url = myForm.getAttribute("action")
     const method = myForm.getAttribute("method")
     const xhr = new XMLHttpRequest()
+    const responseType = "json"
+    xhr.responseType = responseType
     xhr.open(method, url)
     xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.onload = function() {
-        const serverResponse = xhr.response
-        const tweetEl = document.getElementById("tweet")
-        loadTweets(tweetEl)
+        if(xhr.status === 201) {
+        const newTweetJson = xhr.response
+        const newTweetElement = formatTweetElement(newTweetJson)
+        const ogHtml = tweetContainerElement.innerHTML
+        tweetContainerElement.innerHTML = newTweetElement + ogHtml
+        myForm.reset()
+        } else if(xhr.status === 400) {
+            const errorJson = xhr.response
+            console.log(errorJson)
+        } else if(xhr.status === 500) {
+            alert("サーバーエラーが発生しました。もう一度お試しください。")
+        }
+    }
+    xhr.onerror = function() {
+        alert("エラーが発生しました。もう一度入力してください。")
     }
     xhr.send(myFormData)
 }
 const tweetCreateFormEl = document.getElementById("tweet-create-form")
 tweetCreateFormEl.addEventListener("submit", handleTweetCreateFormDidSubmit)
-const tweetEl = document.getElementById('tweet')
+const tweetContainerElement = document.getElementById('tweet')
 
 function loadTweets(tweetElement) {
     const xhr = new XMLHttpRequest()
@@ -72,7 +86,7 @@ function loadTweets(tweetElement) {
     xhr.send()
 }
 
-loadTweets(tweetEl)
+loadTweets(tweetContainerElement)
 
 function handleDidLike(tweet_id, currentCount) {
     console.log(tweet_id, currentCount)

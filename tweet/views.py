@@ -13,21 +13,24 @@ def home_view(request, *args, **kwargs):
     return render(request, "page/home.html", context={}, status=200)
 
 def tweet_create_view(request, *args, **kwargs):
+    print(abc)
     form = TweetForm(request.POST or None)
     next_url = request.POST.get('next') or None
     if form.is_valid():
         obj = form.save(commit=False)
         obj.save()
         if request.is_ajax():
-            return JsonResponse({}, status=201)
+            return JsonResponse(obj.serialize(), status=201)
         if next_url != None and is_safe_url(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
         form = TweetForm()
+        if form.errors:
+            return JsonResponse(form.errors, status=400)
     return render(request, 'components/form.html', context={"form": form})
 
 def tweet_list_view(request, *args, **kwargs):
     qs = Tweet.objects.all()
-    tweet_list = [{"id": x.id, "content": x.content, "like": random.randint(0, 5342)} for x in qs]
+    tweet_list = [x.serialize() for x in qs]
     data = {
         "isUser": False,
         "response": tweet_list
