@@ -15,6 +15,7 @@ please use this !
     <div class="col-md-4 mx-auto col-10">
         <form class="form" id="tweet-create-form" method='POST' action='/create-tweet'>
             {% csrf_token %}
+            <div class="d-none alert alert-danger" id="tweet-create-form-error"></div>
             <input type="hidden" value="/" name="next" />
             <textarea class="form-control" name="content" required="required" placeholder="ツイート内容を入力してください"></textarea>
             <button type="submit" class="btn btn-primary">投稿する</button>
@@ -27,6 +28,18 @@ please use this !
 </div>
 
 <script>
+
+function handleTweetFormError(message, errorDisplay) {
+    let myErrorDiv = document.getElementById("tweet-create-form-error")
+    if(errorDisplay === false) {
+        // no error
+        myErrorDiv.setAttribute("class", "d-none alert alert-danger")
+    } else {
+        // error
+        myErrorDiv.setAttribute("class", "d-block alert alert-danger")
+        myErrorDiv.innerText = message
+    }
+}
 function handleTweetCreateFormDidSubmit(event) {
     event.preventDefault()
     const myForm = event.target
@@ -41,6 +54,7 @@ function handleTweetCreateFormDidSubmit(event) {
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.onload = function() {
         if(xhr.status === 201) {
+            handleTweetFormError("", false)
         const newTweetJson = xhr.response
         const newTweetElement = formatTweetElement(newTweetJson)
         const ogHtml = tweetContainerElement.innerHTML
@@ -48,7 +62,19 @@ function handleTweetCreateFormDidSubmit(event) {
         myForm.reset()
         } else if(xhr.status === 400) {
             const errorJson = xhr.response
-            console.log(errorJson)
+            const contentError = errorJson.content
+            let contentErrorMessage;
+            if(contentError) {
+                contentErrorMessage = contentError[0]
+                if(!contentErrorMessage) {
+                    alert("ディスプレイエラーが発生しました。もう一度お試しください")
+                } else {
+                    handleTweetFormError(contentErrorMessage, false)
+                }
+            } else {
+                alert("エラーが発生しました。もう一度お試しください。")
+            }
+            console.log(contentErrorMessage)
         } else if(xhr.status === 500) {
             alert("サーバーエラーが発生しました。もう一度お試しください。")
         }
