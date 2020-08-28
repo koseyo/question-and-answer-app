@@ -30,16 +30,17 @@ please use this !
 <script>
 
 function handleTweetFormError(message, errorDisplay) {
-    let myErrorDiv = document.getElementById("tweet-create-form-error")
-    if(errorDisplay === false) {
-        // no error
-        myErrorDiv.setAttribute("class", "d-none alert alert-danger")
-    } else {
+    const myErrorDiv = document.getElementById("tweet-create-form-error")
+    if(errorDisplay === true) {
         // error
         myErrorDiv.setAttribute("class", "d-block alert alert-danger")
         myErrorDiv.innerText = message
+    } else {
+        // no error
+        myErrorDiv.setAttribute("class", "d-none alert alert-danger")
     }
 }
+
 function handleTweetCreateFormDidSubmit(event) {
     event.preventDefault()
     const myForm = event.target
@@ -55,26 +56,25 @@ function handleTweetCreateFormDidSubmit(event) {
     xhr.onload = function() {
         if(xhr.status === 201) {
             handleTweetFormError("", false)
-        const newTweetJson = xhr.response
-        const newTweetElement = formatTweetElement(newTweetJson)
-        const ogHtml = tweetContainerElement.innerHTML
-        tweetContainerElement.innerHTML = newTweetElement + ogHtml
-        myForm.reset()
+            const newTweetJson = xhr.response
+            const newTweetElement = formatTweetElement(newTweetJson)
+            const ogHtml = tweetContainerElement.innerHTML
+            tweetContainerElement.innerHTML = newTweetElement + ogHtml
+            myForm.reset()
         } else if(xhr.status === 400) {
             const errorJson = xhr.response
             const contentError = errorJson.content
             let contentErrorMessage;
             if(contentError) {
                 contentErrorMessage = contentError[0]
-                if(!contentErrorMessage) {
-                    alert("ディスプレイエラーが発生しました。もう一度お試しください")
+                if(contentErrorMessage) {
+                    handleTweetFormError(contentErrorMessage, true)
                 } else {
-                    handleTweetFormError(contentErrorMessage, false)
+                    alert("エラーが発生しました。もう一度お試しください")
                 }
             } else {
                 alert("エラーが発生しました。もう一度お試しください。")
             }
-            console.log(contentErrorMessage)
         } else if(xhr.status === 500) {
             alert("サーバーエラーが発生しました。もう一度お試しください。")
         }
@@ -120,7 +120,7 @@ function handleDidLike(tweet_id, currentCount) {
 }
 
 function likeBtn(tweet) {
-    return "<button class='btn  btn-sm btn-primary' onclick=handleDidLike(" + tweet.id + "," + tweet.like + ")>" + tweet.like + " いいね!</button>"
+    return "<button class='btn btn-sm btn-primary' onclick=handleDidLike(" + tweet.id + "," + tweet.like + ")>" + tweet.like + " いいね!</button>"
 }
 
 function formatTweetElement(tweet) {
