@@ -75,6 +75,9 @@ function handleTweetCreateFormDidSubmit(event) {
             } else {
                 alert("エラーが発生しました。もう一度お試しください。")
             }
+        } else if(xhr.status === 401) {
+            alert("ログインしてください。")
+            window.location.href = "/login"
         } else if(xhr.status === 500) {
             alert("サーバーエラーが発生しました。もう一度お試しください。")
         }

@@ -27,6 +27,8 @@ SECRET_KEY = '&dr8ga0*7%)ev9=$ro@%uoah)mg&-rpcvy6*ty27vrk==45%ms'
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '.koseyo08.sh']
+LOGIN_URL = "/login"
+MAX_TWEET_LENGTH = 300
 
 
 # Application definition
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'tweet',
 ]
 
