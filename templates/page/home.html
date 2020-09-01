@@ -78,6 +78,9 @@ function handleTweetCreateFormDidSubmit(event) {
         } else if(xhr.status === 401) {
             alert("ログインしてください。")
             window.location.href = "/login"
+        } else if(xhr.status === 403) {
+            alert("ログインしてください。")
+            window.location.href = "/login"
         } else if(xhr.status === 500) {
             alert("サーバーエラーが発生しました。もう一度お試しください。")
         }
@@ -101,7 +104,7 @@ function loadTweets(tweetElement) {
     xhr.open(method, url)
     xhr.onload = function() {
         const serverResponse = xhr.response
-        let listedItems = serverResponse.response
+        let listedItems = serverResponse
         let finalTweetStr = ""
         let i;
 
