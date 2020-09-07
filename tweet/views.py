@@ -5,7 +5,7 @@ from django.utils.http import is_safe_url
 from django.conf import settings
 from .models import Tweet
 from .forms import TweetForm
-from .serializers import TweetSerializer
+from .serializers import TweetSerializer, TweetActionSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -48,6 +48,30 @@ def tweet_delete_view(request, tweet_id, *args, **kwargs):
     obj = qs.first()
     obj.delete()
     return Response({"message": "ツイートを削除しました。"}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def tweet_action_view(request, tweet_id, *args, **kwargs):
+    serializer = TweetActionSerializer(request.POST)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.validated_data
+        tweet_id = data.get("id")
+        action = data.get("action")
+
+    qs = Tweet.objects.filter(id=tweet_id)
+    if not qs.exists():
+        return Response({}, status=404)
+    obj = qs.first()
+    if action == "like":
+        obj.like.add(request.user)
+        serializer = TweetSerializer(obj)
+        return Response(serializer.data, status=200)
+    elif action == "unlike":
+        obj.like.remove(request.user)
+    elif action == "retweet":
+        # リツイート機能
+        pass
+    return Response({}, status=200)
 
 @api_view(['GET'])
 def tweet_list_view(request, *args, **kwargs):
